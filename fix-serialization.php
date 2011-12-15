@@ -3,17 +3,17 @@
 
 /*
 * Blogestudio Fix Serialization	1.2
-* http://blogestudio.com
-* By Pau Iglesias
-*
 * Fixer script of length attributes for serialized strings (e.g. Wordpress databases)
-*
+* License: GPL version 3 or later - http://www.gnu.org/licenses/gpl.txt
+* By Pau Iglesias
+* http://blogestudio.com
+* 
+* Inspiration and regular expression code base from David Coveney:
+* http://davidcoveney.com/575/php-serialization-fix-for-wordpress-migrations/
+* 
 * Usage:
 *
-* 	/usr/bin/php replacer-serialized.php my-sql-file.sql 
-*
-* Inspiration and regular expression code base from David Coveney: 
-* http://davidcoveney.com/575/php-serialization-fix-for-wordpress-migrations/
+* 	/usr/bin/php fix-serialization.php my-sql-file.sql
 *
 * Versions:
 * 
