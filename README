@@ -1,0 +1,11 @@
+Fix Serialization
+
+A PHP script to fix length attributes for serialized strings over database dumps (e.g. Wordpress databases)
+
+This script can be useful if you perform text replacements in database dumps containing serialized data structures,
+so that reconstructs the serialized length attribute and avoid the serialized offset error in code execution.
+
+Pau Iglesias,
+
+Blogestudio
+http://blogestudio.com/
