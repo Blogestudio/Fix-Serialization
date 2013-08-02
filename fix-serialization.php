@@ -1,6 +1,5 @@
 #!/usr/bin/php
 <?php
-
 /*
 * Blogestudio Fix Serialization	1.2
 * Fixer script of length attributes for serialized strings (e.g. Wordpress databases)
@@ -65,7 +64,7 @@ if (!(isset($argv) && isset($argv[1]))) {
 } else {
 	
 	// Compose path from argument
-	$path = dirname(__FILE__).'/'.$argv[1];
+	$path = $argv[1];  // removed dirname allows to use relative paths when script called from other working directory
 	if (!file_exists($path)) {
 	
 		// Error
@@ -109,7 +108,10 @@ if (!(isset($argv) && isset($argv[1]))) {
 				$do_preg_replace = true;
 
 				// Replace serialized string values
-				$data = preg_replace('!s:(\d+):([\\\\]?"[\\\\]?"|[\\\\]?"((.*?)[^\\\\])[\\\\]?");!e', "'s:'.strlen(unescape_mysql('$3')).':\"'.unescape_quotes('$3').'\";'", $data);
+				$data = preg_replace_callback('!s:(\d+):([\\\\]?"[\\\\]?"|[\\\\]?"((.*?)[^\\\\])[\\\\]?");!', function($m) {
+					if(empty($m[3])) return $m[0]; //dont change anything when no string has 0 chars
+    					return 's:'.strlen(unescape_mysql($m[3])).':"'.unescape_quotes($m[3]).'";';
+				}, $data);
 			}
 
 			// Close file

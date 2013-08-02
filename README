@@ -15,11 +15,13 @@ How to use:
 
 	sh replace.sh
 
+
 Licensed under the GPL version 3 or later:
 http://www.gnu.org/licenses/gpl.txt
 
-Regards,
-Pau Iglesias
 
-Blogestudio
-http://blogestudio.com/
+===========
+
+Fixes by rysi3k:
+- preg_replace modifier "e" is deprecated since PHP 5.5, so replaced with preg_replace_callback
+- removed dirname(__FILE__) in file path allows to use relative paths for script and sql file
