@@ -12,9 +12,10 @@
 * http://davidcoveney.com/575/php-serialization-fix-for-wordpress-migrations/
 * 
 * Usage:
-*
-* 	/usr/bin/php fix-serialization.php my-sql-file.sql
-*
+* Uncompressed Files
+*  cat dump.sql | php fix-serialization.php > fixed-dump.sql
+* Compressed Files
+*  gunzip -c dump.sql.gz | php fix-serialization.php | gzip > fixed-dump.sql.gz
 * Versions:
 * 
 * 	1.0 2011-08-03 Initial release
@@ -37,8 +38,6 @@
 * 
 */
 
-
-
 // Unescape to avoid dump-text issues
 function unescape_mysql($value) {
 	return str_replace(array("\\\\", "\\0", "\\n", "\\r", "\Z",  "\'", '\"'),
@@ -46,114 +45,18 @@ function unescape_mysql($value) {
 					   $value);
 }
 
-
-
 // Fix strange behaviour if you have escaped quotes in your replacement
 function unescape_quotes($value) {
 	return str_replace('\"', '"', $value);
 }	
 
+while (false !== ($line = fgets(STDIN))) {
+	$do_preg_replace = true;
 
-
-// Check command line arguments
-if (!(isset($argv) && isset($argv[1]))) {
+    // Replace serialized string values
+    $data = preg_replace('!s:(\d+):([\\\\]?"[\\\\]?"|[\\\\]?"((.*?)[^\\\\])[\\\\]?");!e', "'s:'.strlen(unescape_mysql('$3')).':\"'.unescape_quotes('$3').'\";'", $line);
 	
-	// Error
-	echo 'Error: no input file specified'."\n\n";
-
-// With arguments
-} else {
-	
-	// Compose path from argument
-	$path = dirname(__FILE__).'/'.$argv[1];
-	if (!file_exists($path)) {
-	
-		// Error
-		echo 'Error: input file does not exists'."\n";
-		echo $path."\n\n";
-	
-	// File exists
-	} else {
-	
-		// Get file contents
-		if (!($fp = fopen($path, 'r'))) {
-			
-			// Error
-			echo 'Error: can`t open input file for read'."\n";
-			echo $path."\n\n";
-		
-		// File opened for read
-		} else {
-			
-			// Initializations
-			$do_preg_replace = false;
-		
-			// Copy data
-			if (!($data = fread($fp, filesize($path)))) {
-
-				// Error
-				echo 'Error: can`t read entire data from input file'."\n";
-				echo $path."\n\n";
-			
-			// Check data
-			} elseif (!(isset($data) && strlen($data) > 0)) {
-
-				// Warning
-				echo "Warning: the file is empty or can't read contents\n";
-				echo $path."\n\n";
-			
-			// Data ok
-			} else {
-
-				// Tag context
-				$do_preg_replace = true;
-
-				// Replace serialized string values
-				$data = preg_replace('!s:(\d+):([\\\\]?"[\\\\]?"|[\\\\]?"((.*?)[^\\\\])[\\\\]?");!e', "'s:'.strlen(unescape_mysql('$3')).':\"'.unescape_quotes('$3').'\";'", $data);
-			}
-
-			// Close file
-			fclose($fp);
-			
-			// Check data
-			if (!(isset($data) && strlen($data) > 0)) {
-				
-				// Check origin
-				if ($do_preg_replace) {
-
-					// Error
-					echo "Error: preg_replace returns nothing\n";
-					if (function_exists('preg_last_error')) echo "preg_last_error() = ".preg_last_error()."\n";
-					echo $path."\n\n";
-				}
-			
-			// Data Ok
-			} else {
-
-				// And finally write data
-				if (!($fp = fopen($path, 'w'))) {
-
-					// Error
-					echo "Error: can't open input file for writing\n";
-					echo $path."\n\n";
-					
-				// Open for write
-				} else {
-					
-					// Write file data
-					if (!fwrite($fp, $data)) {
-						
-						// Error
-						echo "Error: can't write input file\n";
-						echo $path."\n\n";
-					}
-					
-					// Close file
-					fclose($fp);
-				}
-			}
-		}
-	}
+	fwrite(STDOUT,$data);
 }
 
 
