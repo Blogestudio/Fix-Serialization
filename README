@@ -9,7 +9,20 @@ How to use:
 
 - Execute directly this script in the way:
 
-	/usr/bin/php fix-serialization.php my-sql-file.sql
+	- In place file processing
+ 	/usr/bin/php fix-serialization.php my-sql-file.sql
+ 	
+	- Stream processing Examples
+
+		-- Uncompressed to uncompressed
+		cat my-sql-file.sql | /usr/bin/php fix-serialization.php --stream > my-sql-fixed-file.sql
+
+		-- Compressed to compressed
+		gunzip < my-sql-file.sql.gz | /usr/bin/php fix-serialization.php --stream | gzip > my-sql-fixed-file.sql.gz
+	
+		-- Direct import into mysql from compressed
+		gunzip < my-sql-file.sql.gz | /usr/bin/php fix-serialization.php --stream | mysql -uuname -p "database name"
+	
 
 - Or use the shell script replace.sh that replaces with sed command each sql file in directory and call fix-serialization script
 
