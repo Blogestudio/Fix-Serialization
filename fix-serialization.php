@@ -109,7 +109,19 @@ if (!(isset($argv) && isset($argv[1]))) {
 				$do_preg_replace = true;
 
 				// Replace serialized string values
-				$data = preg_replace('!s:(\d+):([\\\\]?"[\\\\]?"|[\\\\]?"((.*?)[^\\\\])[\\\\]?");!e', "'s:'.strlen(unescape_mysql('$3')).':\"'.unescape_quotes('$3').'\";'", $data);
+				$data = preg_replace_callback('!s:(\d+):([\\\\]?"[\\\\]?"|[\\\\]?"((.*?)[^\\\\])[\\\\]?");!',
+				function ($m)
+				{
+				    if (count($strResult) > 3)
+				    {
+					return 's:'.strlen(unescape_mysql($strResult[3])).':\"'.unescape_quotes($strResult[3]).'\";';
+				    }
+				    else
+				    {
+					return $strResult[0];
+				    }
+				},
+				$data);
 			}
 
 			// Close file
